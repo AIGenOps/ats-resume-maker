@@ -40,10 +40,10 @@ We are always looking to improve and expand the ATS Resume Maker. If you have su
 
 ## Support & Donation
 
-If you find this tool helpful and would like to support its ongoing development, hosting, and maintenance, you can contribute here:
+If you find this tool helpful and would like to support its ongoing development, you can contribute to the following wallet addresses:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/)
-[![PayPal](https://img.shields.io/badge/PayPal-003087?style=for-the-badge&logo=paypal&logoColor=white)](https://www.paypal.com/)
+*   **Bitcoin (BTC):** `YOUR_BTC_WALLET_ADDRESS`
+*   **Ethereum (ETH):** `YOUR_ETH_WALLET_ADDRESS`
 
 ---
 
