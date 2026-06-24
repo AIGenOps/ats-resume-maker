@@ -1250,7 +1250,7 @@ body {
         <label>Career Templates</label>
         <p style="font-size:11px; color:var(--color-text-secondary); margin-bottom:12px; line-height:1.4">Load a tailored preset to quickly build your resume.</p>
         <div style="display:flex; flex-direction:column; gap:8px">
-          <button class="btn-primary" onclick="loadPreset('generic')">Standard Template</button>
+          <button class="btn-primary" onclick="loadPreset('aditya')">Aditya Pidurkar (Default)</button>
           <button class="btn-primary" onclick="loadPreset('cyber')">Cybersecurity Intern</button>
           <button class="btn-primary" onclick="loadPreset('frontend')">Frontend Engineer</button>
           <button class="btn-primary" onclick="loadPreset('pm')">Product Manager</button>
@@ -1398,28 +1398,38 @@ body {
 
 <script>
 let data = {
-  name: "Your Name",
-  phone: "+1 (555) 019-9234",
-  email: "your.email@example.com",
-  location: "New York, NY",
-  linkedin: "linkedin.com/in/yourusername",
-  summary: "Brief, professional summary of your career history, skills, and goals. Highlight key accomplishments and areas of expertise.",
+  name: "Aditya Pidurkar",
+  phone: "+91 9975356540",
+  email: "mail@adityapidurkar.in",
+  location: "Nagpur, Maharashtra, India",
+  linkedin: "linkedin.com/in/adityapidurkar",
+  summary: "First-year B.Tech Computer Science Engineering student (AI & Data Science) with demonstrated experience in cybersecurity operations, CTF event organization, and security community management. Currently serving as Team Lead at SecLeaf, organizing international CTF competitions, and contributing to OWASP Nagpur Chapter. Familiar with OWASP Top 10 vulnerabilities, web application security concepts, and security assessment methodologies. Seeking a cybersecurity internship role in penetration testing, vulnerability assessment, or security operations.",
   skills: [
-    {label:"Core Competencies", items:"Project Management, Strategic Planning, Financial Analysis"},
-    {label:"Tools & Technologies", items:"Git, GitHub, MS Office, SQL"},
+    {label:"Cybersecurity", items:"CTF Competitions, Web Application Security, OWASP Top 10, Vulnerability Assessment, Security Assessment, Offensive Security Concepts"},
+    {label:"Tools", items:"Kali Linux, Burp Suite (Beginner), Wireshark (Beginner), Nmap, Linux Command Line, Git, GitHub"},
+    {label:"Programming", items:"Python (Scripting), HTML, CSS"},
+    {label:"Soft Skills", items:"Team Leadership, Event Logistics, Community Management, Strategic Planning, Brand Development, Graphic Design"},
   ],
   experience: [
-    {title:"Job Title", org:"Company Name", location:"City, State", dates:"Start Date - End Date", bullets:["Key accomplishment or responsibility in this role, using active verbs.","Quantifiable results or metrics achieved during your tenure."]},
+    {title:"Team Lead", org:"SecLeaf", location:"Global (Remote)", dates:"Oct 2025 - Present", bullets:["Organized and led SecLeaf Q2 CTF 2026, an international Capture The Flag competition covering web exploitation, cryptography, forensics, and OSINT challenge categories.","Managed full event lifecycle including challenge curation, infrastructure coordination, participant communications, and post-event documentation.","Coordinated multi-timezone logistics for global participants, producing official timezone reference documentation and operational schedules.","Collaborated with cross-functional team members to ensure secure, stable, and accessible competition infrastructure throughout the event."]},
+    {title:"Strategist and Graphic Designer", org:"ThunderCipher", location:"New Delhi, India (Remote)", dates:"Aug 2025 - Present", bullets:["Evaluated emerging cybersecurity tools and technologies, delivering structured assessments to support informed organizational decision-making.","Created visual designs and marketing materials for security-focused campaigns and social media channels.","Assisted in developing and maintaining consistent brand identity across all public-facing platforms."]},
+    {title:"Community Manager", org:"OWASP Nagpur Chapter", location:"Nagpur, India", dates:"May 2026 - Present", bullets:["Contributing to outreach, marketing, and growth initiatives for the OWASP Nagpur Chapter, part of the globally recognized Open Worldwide Application Security Project.","Assisting in chapter decision-making, speaker coordination, and member engagement for application security awareness events."]},
+    {title:"Logistics Lead", org:"The Hackers Meetup", location:"Nagpur, India", dates:"Jun 2025 - Present", bullets:["Coordinated end-to-end event logistics for cybersecurity-focused community meetups, ensuring timely delivery of materials and seamless event execution.","Developed event setup and breakdown schedules; optimized venue layouts for accessibility and participant engagement."]},
   ],
   education: [
-    {degree:"Degree / Certification", spec:"Field of Study", inst:"Institution Name", dates:"Graduated Year", detail:""},
+    {degree:"Bachelor of Technology - Computer Science Engineering", spec:"Specialization: Artificial Intelligence and Data Science", inst:"Ramdeobaba University, Nagpur, Maharashtra", dates:"Jul 2024 - Present", detail:"CGPA: 8.29 | Expected Graduation: 2028"},
+    {degree:"Higher Secondary Certificate (HSC) - Science Stream", spec:"Science Stream", inst:"Vidya Niketan Jr College, Chandrapur", dates:"Graduated 2024", detail:""},
   ],
   projects: [
-    {title:"Project Title", desc:"Brief description of the project, technologies used, and your contribution."},
+    {title:"SecLeaf Q2 CTF 2026 - Event Organizer", desc:"Led the complete organization of an international online CTF competition. Responsibilities included challenge design review, infrastructure management, team coordination, and participant support across web exploitation, cryptography, forensics, and OSINT categories."},
+    {title:"CTF Participation - Ongoing", desc:"Active competitor in Capture The Flag competitions with experience across web exploitation, cryptography, steganography, and OSINT challenge categories. Developing practical offensive security skills through hands-on problem solving."},
+    {title:"Cybersecurity Tool Research - ThunderCipher", desc:"Researched and evaluated cybersecurity tools and platforms, producing structured documentation to guide technology adoption decisions within a security-focused organization."},
   ],
   extra: [
-    "Languages: English (Fluent), Spanish (Conversational)",
-    "Certifications or voluntary experience"
+    "Open to remote and on-site internship opportunities across India.",
+    "CTFtime profile and GitHub repositories available upon request.",
+    "Languages: English (Professional), Hindi (Native), Marathi (Native).",
+    "References available upon request.",
   ],
   settings: {
     theme: 'classic',
@@ -1431,7 +1441,7 @@ let data = {
       skills: { enabled: true, title: "TECHNICAL SKILLS" },
       experience: { enabled: true, title: "PROFESSIONAL EXPERIENCE" },
       education: { enabled: true, title: "EDUCATION" },
-      projects: { enabled: true, title: "PROJECTS" },
+      projects: { enabled: true, title: "PROJECTS AND CTF ACTIVITY" },
       extra: { enabled: true, title: "ADDITIONAL INFORMATION" }
     },
     sectionOrder: ['summary', 'skills', 'experience', 'education', 'projects', 'extra']
@@ -2806,30 +2816,40 @@ function downloadPDF(){
 
 // Career templates preset data
 const careerPresets = {
-  generic: {
-    presetName: "Standard Resume",
-    name: "Your Name",
-    phone: "+1 (555) 019-9234",
-    email: "your.email@example.com",
-    location: "New York, NY",
-    linkedin: "linkedin.com/in/yourusername",
-    summary: "Brief, professional summary of your career history, skills, and goals. Highlight key accomplishments and areas of expertise.",
+  aditya: {
+    presetName: "Aditya Pidurkar Resume",
+    name: "Aditya Pidurkar",
+    phone: "+91 9975356540",
+    email: "mail@adityapidurkar.in",
+    location: "Nagpur, Maharashtra, India",
+    linkedin: "linkedin.com/in/adityapidurkar",
+    summary: "First-year B.Tech Computer Science Engineering student (AI & Data Science) with demonstrated experience in cybersecurity operations, CTF event organization, and security community management. Currently serving as Team Lead at SecLeaf, organizing international CTF competitions, and contributing to OWASP Nagpur Chapter. Familiar with OWASP Top 10 vulnerabilities, web application security concepts, and security assessment methodologies. Seeking a cybersecurity internship role in penetration testing, vulnerability assessment, or security operations.",
     skills: [
-      {label:"Core Competencies", items:"Project Management, Strategic Planning, Financial Analysis"},
-      {label:"Tools & Technologies", items:"Git, GitHub, MS Office, SQL"}
+      {label:"Cybersecurity", items:"CTF Competitions, Web Application Security, OWASP Top 10, Vulnerability Assessment, Security Assessment, Offensive Security Concepts"},
+      {label:"Tools", items:"Kali Linux, Burp Suite (Beginner), Wireshark (Beginner), Nmap, Linux Command Line, Git, GitHub"},
+      {label:"Programming", items:"Python (Scripting), HTML, CSS"},
+      {label:"Soft Skills", items:"Team Leadership, Event Logistics, Community Management, Strategic Planning, Brand Development, Graphic Design"}
     ],
     experience: [
-      {title:"Job Title", org:"Company Name", location:"City, State", dates:"Start Date - End Date", bullets:["Key accomplishment or responsibility in this role, using active verbs.","Quantifiable results or metrics achieved during your tenure."]}
+      {title:"Team Lead", org:"SecLeaf", location:"Global (Remote)", dates:"Oct 2025 - Present", bullets:["Organized and led SecLeaf Q2 CTF 2026, an international Capture The Flag competition covering web exploitation, cryptography, forensics, and OSINT challenge categories.","Managed full event lifecycle including challenge curation, infrastructure coordination, participant communications, and post-event documentation.","Coordinated multi-timezone logistics for global participants, producing official timezone reference documentation and operational schedules.","Collaborated with cross-functional team members to ensure secure, stable, and accessible competition infrastructure throughout the event."]},
+      {title:"Strategist and Graphic Designer", org:"ThunderCipher", location:"New Delhi, India (Remote)", dates:"Aug 2025 - Present", bullets:["Evaluated emerging cybersecurity tools and technologies, delivering structured assessments to support informed organizational decision-making.","Created visual designs and marketing materials for security-focused campaigns and social media channels.","Assisted in developing and maintaining consistent brand identity across all public-facing platforms."]},
+      {title:"Community Manager", org:"OWASP Nagpur Chapter", location:"Nagpur, India", dates:"May 2026 - Present", bullets:["Contributing to outreach, marketing, and growth initiatives for the OWASP Nagpur Chapter, part of the globally recognized Open Worldwide Application Security Project.","Assisting in chapter decision-making, speaker coordination, and member engagement for application security awareness events."]},
+      {title:"Logistics Lead", org:"The Hackers Meetup", location:"Nagpur, India", dates:"Jun 2025 - Present", bullets:["Coordinated end-to-end event logistics for cybersecurity-focused community meetups, ensuring timely delivery of materials and seamless event execution.","Developed event setup and breakdown schedules; optimized venue layouts for accessibility and participant engagement."]}
     ],
     education: [
-      {degree:"Degree / Certification", spec:"Field of Study", inst:"Institution Name", dates:"Graduated Year", detail:""}
+      {degree:"Bachelor of Technology - Computer Science Engineering", spec:"Specialization: Artificial Intelligence and Data Science", inst:"Ramdeobaba University, Nagpur, Maharashtra", dates:"Jul 2024 - Present", detail:"CGPA: 8.29 | Expected Graduation: 2028"},
+      {degree:"Higher Secondary Certificate (HSC) - Science Stream", spec:"Science Stream", inst:"Vidya Niketan Jr College, Chandrapur", dates:"Graduated 2024", detail:""}
     ],
     projects: [
-      {title:"Project Title", desc:"Brief description of the project, technologies used, and your contribution."}
+      {title:"SecLeaf Q2 CTF 2026 - Event Organizer", desc:"Led the complete organization of an international online CTF competition. Responsibilities included challenge design review, infrastructure management, team coordination, and participant support across web exploitation, cryptography, forensics, and OSINT categories."},
+      {title:"CTF Participation - Ongoing", desc:"Active competitor in Capture The Flag competitions with experience across web exploitation, cryptography, steganography, and OSINT challenge categories. Developing practical offensive security skills through hands-on problem solving."},
+      {title:"Cybersecurity Tool Research - ThunderCipher", desc:"Researched and evaluated cybersecurity tools and platforms, producing structured documentation to guide technology adoption decisions within a security-focused organization."}
     ],
     extra: [
-      "Languages: English (Fluent), Spanish (Conversational)",
-      "Certifications or voluntary experience"
+      "Open to remote and on-site internship opportunities across India.",
+      "CTFtime profile and GitHub repositories available upon request.",
+      "Languages: English (Professional), Hindi (Native), Marathi (Native).",
+      "References available upon request."
     ],
     settings: {
       theme: 'classic',
@@ -2841,7 +2861,7 @@ const careerPresets = {
         skills: { enabled: true, title: "TECHNICAL SKILLS" },
         experience: { enabled: true, title: "PROFESSIONAL EXPERIENCE" },
         education: { enabled: true, title: "EDUCATION" },
-        projects: { enabled: true, title: "PROJECTS" },
+        projects: { enabled: true, title: "PROJECTS AND CTF ACTIVITY" },
         extra: { enabled: true, title: "ADDITIONAL INFORMATION" }
       },
       sectionOrder: ['summary', 'skills', 'experience', 'education', 'projects', 'extra']
@@ -3007,7 +3027,7 @@ function initProjectManager() {
     // Initialize default project from the static details
     const defaultProject = {
       id: 'proj_' + Date.now(),
-      name: 'My Resume',
+      name: 'Aditya Pidurkar Resume',
       data: JSON.parse(JSON.stringify(data))
     };
     projects.push(defaultProject);
