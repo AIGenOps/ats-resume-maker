@@ -1287,9 +1287,13 @@ body {
 
     <div class="panel hidden" id="panel-resumes">
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom: 24px">
-        <button class="btn-primary accent" onclick="createNewProject()" style="grid-column: span 2">+ New Resume</button>
-        <button class="btn-primary" onclick="triggerImport()">Import JSON</button>
-        <button class="btn-primary" onclick="exportJSON()">Export JSON</button>
+        <button class="btn-primary accent" onclick="createNewProject()" style="grid-column: span 2" title="Create a new empty resume project">+ Create New Blank Resume</button>
+        <div style="grid-column: span 2; margin-top: 12px; margin-bottom: 4px;">
+          <label style="font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px">Backup & Restore</label>
+          <p style="font-size: 11px; color: var(--color-text-secondary); line-height: 1.4; margin-bottom: 8px">Download a backup file of your resumes to your computer, or restore your projects from a previously saved backup file.</p>
+        </div>
+        <button class="btn-primary" onclick="triggerImport()" title="Upload a previously saved resume backup file to restore your work">Upload Backup</button>
+        <button class="btn-primary" onclick="exportJSON()" title="Download a backup file of your current resume data">Save Backup</button>
         <input type="file" id="import-json-file" accept=".json" style="display:none" onchange="importJSON(event)">
       </div>
       
@@ -1430,9 +1434,9 @@ body {
     </div>
 
     <div class="toolbar">
-      <button class="btn-primary" onclick="printResume()">Print / Save PDF</button>
-      <button class="btn-primary accent" onclick="downloadPDF()">Export jsPDF</button>
-      <button class="btn-primary" onclick="copyText()">Copy Plain Text</button>
+      <button class="btn-primary" onclick="printResume()" title="Print your resume or save it as a PDF using your browser's print dialog">Print Resume</button>
+      <button class="btn-primary accent" onclick="downloadPDF()" title="Download a clean PDF copy directly to your computer">Download PDF</button>
+      <button class="btn-primary" onclick="copyText()" title="Copy all the text on your resume to your clipboard to paste elsewhere">Copy Text</button>
     </div>
   </div>
 
