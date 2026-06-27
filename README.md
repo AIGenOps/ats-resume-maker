@@ -42,8 +42,11 @@ We are always looking to improve and expand the ATS Resume Maker. If you have su
 
 If you find this tool helpful and would like to support its ongoing development, you can contribute to the following wallet addresses:
 
-*   **Bitcoin (BTC):** `YOUR_BTC_WALLET_ADDRESS`
-*   **Ethereum (ETH):** `YOUR_ETH_WALLET_ADDRESS`
+*   **Bitcoin (BTC):** `bc1qa7vcupxgwcj3fpk7vfg7qxxj2slq40m2jg5lfa`
+*   **Ethereum (ETH):** `0xda44c6764c881424d79d681b01cb86cc6805a920`
+*   **Tether (USDT):** `0xda44c6764c881424d79d681b01cb86cc6805a920`
+*   **USD Coin (USDC):** `0xda44c6764c881424d79d681b01cb86cc6805a920`
+*   **Dogecoin (DOGE):** `DBvnR9dMK7x5Ue45MyS3vCvxVAEd4MqBmM`
 
 ---
 
