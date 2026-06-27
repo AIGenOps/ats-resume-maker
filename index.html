@@ -1324,7 +1324,45 @@ body {
             <button class="btn-del" id="btn-remove-photo" onclick="removePhoto()" style="display: none; padding: 6px 10px">×</button>
           </div>
         </div>
-        <div id="photo-preview-thumbnail" style="width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--color-accent); display: none; background-size: cover; background-position: center"></div>
+        <div id="photo-preview-thumbnail" style="width: 44px; height: 44px; display: none; border: 1.5px solid var(--color-accent); overflow: hidden; position: relative;"></div>
+      </div>
+
+      <!-- Photo Adjustments Control Panel -->
+      <div id="photo-adjustments-panel" style="display: none; margin-bottom: 20px; padding: 12px; border: 1px solid var(--color-border-primary); border-radius: var(--border-radius-md); background: var(--color-background-secondary)">
+        <label style="font-size: 10px; font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 10px">Photo Adjustments</label>
+        
+        <div class="field-group" style="margin-bottom: 10px">
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px">
+            <span>Zoom (Scale)</span>
+            <span id="val-photo-zoom">100%</span>
+          </div>
+          <input type="range" id="f-photo-zoom" min="100" max="300" value="100" step="5" oninput="adjustPhoto('zoom', this.value)" style="width: 100%">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px">
+          <div class="field-group">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px">
+              <span>Move Left/Right</span>
+              <span id="val-photo-x">0%</span>
+            </div>
+            <input type="range" id="f-photo-x" min="-100" max="100" value="0" step="2" oninput="adjustPhoto('x', this.value)" style="width: 100%">
+          </div>
+          <div class="field-group">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px">
+              <span>Move Up/Down</span>
+              <span id="val-photo-y">0%</span>
+            </div>
+            <input type="range" id="f-photo-y" min="-100" max="100" value="0" step="2" oninput="adjustPhoto('y', this.value)" style="width: 100%">
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-bottom: 0">
+          <span style="font-size: 11px; display: block; margin-bottom: 4px">Frame Shape</span>
+          <div style="display: flex; gap: 8px">
+            <button class="btn-primary" id="btn-shape-circle" onclick="adjustPhoto('border', 'circle')" style="padding: 4px 12px; font-size: 11px; width: auto">Circle</button>
+            <button class="btn-primary" id="btn-shape-square" onclick="adjustPhoto('border', 'square')" style="padding: 4px 12px; font-size: 11px; width: auto">Square</button>
+          </div>
+        </div>
       </div>
       <div class="field-group"><label>Full name</label><input id="f-name" oninput="render()"></div>
       <div class="field-group"><label>Professional Title</label><input id="f-title" placeholder="e.g. Cybersecurity Specialist" oninput="render()"></div>
@@ -2230,9 +2268,25 @@ function downloadPDF(){
   function drawCircularAvatar(imgData, x, y, size) {
     try {
       doc.saveGraphicsState();
-      doc.circle(x + size/2, y + size/2, size/2, 'F');
+      
+      const isSquare = (data.photoBorder === 'square');
+      
+      if (isSquare) {
+        doc.roundedRect(x, y, size, size, 1.5, 1.5, 'F');
+      } else {
+        doc.circle(x + size/2, y + size/2, size/2, 'F');
+      }
       doc.clip();
-      doc.addImage(imgData, 'JPEG', x, y, size, size);
+      
+      const zoomFactor = (data.photoZoom || 100) / 100;
+      const drawWidth = size * zoomFactor;
+      const drawHeight = size * zoomFactor;
+      const dx = (size - drawWidth) / 2;
+      const dy = (size - drawHeight) / 2;
+      const offsetX = (data.photoX || 0) / 100 * drawWidth;
+      const offsetY = (data.photoY || 0) / 100 * drawHeight;
+      
+      doc.addImage(imgData, 'JPEG', x + dx + offsetX, y + dy + offsetY, drawWidth, drawHeight);
       doc.restoreGraphicsState();
       
       doc.setLineWidth(0.4);
@@ -2241,7 +2295,12 @@ function downloadPDF(){
       } else {
         doc.setDrawColor(37, 99, 235);
       }
-      doc.circle(x + size/2, y + size/2, size/2, 'D');
+      
+      if (isSquare) {
+        doc.roundedRect(x, y, size, size, 1.5, 1.5, 'D');
+      } else {
+        doc.circle(x + size/2, y + size/2, size/2, 'D');
+      }
     } catch (e) {
       doc.addImage(imgData, 'JPEG', x, y, size, size);
     }
@@ -3828,16 +3887,93 @@ function removePhoto() {
 function updatePhotoUI() {
   const thumb = document.getElementById('photo-preview-thumbnail');
   const btnRemove = document.getElementById('btn-remove-photo');
+  const adjPanel = document.getElementById('photo-adjustments-panel');
   if (!thumb || !btnRemove) return;
   
   if (data.photo) {
-    thumb.style.backgroundImage = `url(${data.photo})`;
     thumb.style.display = 'block';
     btnRemove.style.display = 'inline-block';
+    if (adjPanel) adjPanel.style.display = 'block';
+    
+    thumb.innerHTML = `
+      <div style="
+        width: 100%; 
+        height: 100%; 
+        overflow: hidden; 
+        border-radius: ${data.photoBorder === 'square' ? '8px' : '50%'}; 
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <img src="${data.photo}" style="
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transform: scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%);
+        ">
+      </div>
+    `;
+    
+    // Sync sliders
+    const sZoom = document.getElementById('f-photo-zoom');
+    const sX = document.getElementById('f-photo-x');
+    const sY = document.getElementById('f-photo-y');
+    if (sZoom) sZoom.value = data.photoZoom || 100;
+    if (sX) sX.value = data.photoX || 0;
+    if (sY) sY.value = data.photoY || 0;
+    
+    const valZoom = document.getElementById('val-photo-zoom');
+    const valX = document.getElementById('val-photo-x');
+    const valY = document.getElementById('val-photo-y');
+    if (valZoom) valZoom.textContent = (data.photoZoom || 100) + '%';
+    if (valX) valX.textContent = ((data.photoX || 0) > 0 ? '+' : '') + (data.photoX || 0) + '%';
+    if (valY) valY.textContent = ((data.photoY || 0) > 0 ? '+' : '') + (data.photoY || 0) + '%';
+    
+    updatePhotoShapeButtons();
   } else {
-    thumb.style.backgroundImage = 'none';
+    thumb.innerHTML = '';
     thumb.style.display = 'none';
     btnRemove.style.display = 'none';
+    if (adjPanel) adjPanel.style.display = 'none';
+  }
+}
+
+function adjustPhoto(type, val) {
+  if (type === 'zoom') {
+    data.photoZoom = parseInt(val) || 100;
+    const txt = document.getElementById('val-photo-zoom');
+    if (txt) txt.textContent = data.photoZoom + '%';
+  } else if (type === 'x') {
+    data.photoX = parseInt(val) || 0;
+    const txt = document.getElementById('val-photo-x');
+    if (txt) txt.textContent = (data.photoX > 0 ? '+' : '') + data.photoX + '%';
+  } else if (type === 'y') {
+    data.photoY = parseInt(val) || 0;
+    const txt = document.getElementById('val-photo-y');
+    if (txt) txt.textContent = (data.photoY > 0 ? '+' : '') + data.photoY + '%';
+  } else if (type === 'border') {
+    data.photoBorder = val; // 'circle' or 'square'
+    updatePhotoShapeButtons();
+  }
+  
+  saveActiveProject();
+  render();
+  updatePhotoUI();
+}
+
+function updatePhotoShapeButtons() {
+  const btnCircle = document.getElementById('btn-shape-circle');
+  const btnSquare = document.getElementById('btn-shape-square');
+  if (!btnCircle || !btnSquare) return;
+  
+  if (data.photoBorder === 'square') {
+    btnSquare.classList.add('accent');
+    btnCircle.classList.remove('accent');
+  } else {
+    btnCircle.classList.add('accent');
+    btnSquare.classList.remove('accent');
   }
 }
 
@@ -3894,8 +4030,26 @@ function renderHeader() {
           </div>
         </div>
         ${data.photo ? `
-        <div class="p-avatar-container" style="margin-left: 20px">
-          <div class="p-avatar" style="background-image: url(${data.photo})"></div>
+        <div class="p-avatar-container" style="margin-left: 20px; flex-shrink: 0;">
+          <div style="
+            width: 80px; 
+            height: 80px; 
+            overflow: hidden; 
+            border-radius: ${data.photoBorder === 'square' ? '8px' : '50%'}; 
+            border: 2px solid #2563eb; 
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          ">
+            <img src="${data.photo}" style="
+              position: absolute;
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+              transform: scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%);
+            ">
+          </div>
         </div>` : ''}
       </div>
     `;
@@ -3906,8 +4060,26 @@ function renderHeader() {
       <div class="p-header timeline" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1.5px solid #111111; padding-bottom: 12px">
         <div style="display: flex; align-items: center; gap: 16px">
           ${data.photo ? `
-          <div class="p-avatar-container">
-            <div class="p-avatar" style="background-image: url(${data.photo}); width: 64px; height: 64px"></div>
+          <div class="p-avatar-container" style="flex-shrink: 0;">
+            <div style="
+              width: 64px; 
+              height: 64px; 
+              overflow: hidden; 
+              border-radius: ${data.photoBorder === 'square' ? '6px' : '50%'}; 
+              border: 2px solid #111111; 
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <img src="${data.photo}" style="
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transform: scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%);
+              ">
+            </div>
           </div>` : ''}
           <div style="text-align: left">
             <div class="p-name" style="font-size: 2.0em; font-weight: 700; line-height: 1.1; font-family: var(--font-display); text-transform: uppercase">${esc(data.name)}</div>
