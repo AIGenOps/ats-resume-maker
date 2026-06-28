@@ -1146,6 +1146,12 @@ body {
     display: block !important;
     width: 100% !important;
   }
+  #preview-wrapper {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+  }
   .preview-page {
     box-shadow: none !important;
     border-radius: 0 !important;
@@ -1587,7 +1593,9 @@ body {
       <button class="btn-primary" style="padding: 2px 8px; font-size:12px; border-radius: 12px; width:auto; flex:none" onclick="zoomPreview(0.1)">+</button>
       <button class="btn-primary" style="padding: 2px 8px; font-size:11px; border-radius: 12px; width:auto; flex:none" onclick="resetZoom()">Fit</button>
     </div>
-    <div class="preview-page" id="preview"></div>
+    <div id="preview-wrapper" style="position: relative; display: flex; justify-content: center; width: 100%;">
+      <div class="preview-page" id="preview"></div>
+    </div>
   </div>
 
   <div class="global-toolbar" style="display: none">
@@ -3936,34 +3944,41 @@ function resetZoom() {
 
 function applyZoom() {
   const p = document.getElementById('preview');
-  if (!p) return;
-  
-  p.style.transform = `scale(${currentZoom})`;
-  p.style.transformOrigin = 'top center';
+  const wrapper = document.getElementById('preview-wrapper');
+  if (!p || !wrapper) return;
   
   const zoomText = document.getElementById('zoom-text');
   if (zoomText) {
     zoomText.textContent = `${Math.round(currentZoom * 100)}%`;
   }
   
-  const pane = p.parentElement;
+  const pane = document.querySelector('.preview-pane');
+  if (!pane) return;
   
-  const scaledHeight = p.offsetHeight * currentZoom;
-  // Apply visual height compression using negative margin on the scaled page 
-  // to avoid large empty scroll areas at the bottom of the container.
-  p.style.marginBottom = `${scaledHeight - p.offsetHeight}px`;
-  pane.style.paddingBottom = '40px';
-
   const scaledWidth = p.offsetWidth * currentZoom;
-  // Calculate horizontal margin footprint to center the scaled page 
-  // and prevent horizontal scrollbars on smaller viewports.
-  const marginSide = (scaledWidth - p.offsetWidth) / 2;
-  p.style.marginLeft = `${marginSide}px`;
-  p.style.marginRight = `${marginSide}px`;
+  const scaledHeight = p.offsetHeight * currentZoom;
   
-  // Clear side paddings so margin footprint aligns perfectly in the middle
+  // Set wrapper size to match the scaled dimensions exactly
+  wrapper.style.width = `${scaledWidth}px`;
+  wrapper.style.height = `${scaledHeight}px`;
+  wrapper.style.marginBottom = '40px';
+  
+  // Absolute position and scale the preview page inside the wrapper
+  p.style.position = 'absolute';
+  p.style.top = '0';
+  p.style.left = '50%';
+  p.style.transform = `translate(-50%, 0) scale(${currentZoom})`;
+  p.style.transformOrigin = 'top center';
+  
+  // Reset margin overrides on the page itself
+  p.style.marginLeft = '0px';
+  p.style.marginRight = '0px';
+  p.style.marginBottom = '0px';
+  
+  // Clear side padding on container to center wrapper perfectly
   pane.style.paddingLeft = '0px';
   pane.style.paddingRight = '0px';
+  pane.style.paddingBottom = '40px';
 }
 
 function switchMobileView(view) {
