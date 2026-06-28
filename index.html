@@ -1217,11 +1217,12 @@ body {
   .preview-pane {
     flex: 1 !important;
     width: 100% !important;
-    padding: 16px 8px !important;
+    padding: 16px 0 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
   
   .preview-page {
@@ -1580,7 +1581,7 @@ body {
 
   <div class="preview-pane">
     <!-- Translucent Zoom Toolbar -->
-    <div style="display:flex; gap:10px; padding: 6px 12px; border-radius: 20px; background: var(--color-background-glass); backdrop-filter: var(--backdrop-blur); border: 1px solid var(--color-border-primary); margin-bottom: 20px; align-items:center; z-index: 10; position: sticky; top: 0; box-shadow: 0 4px 12px var(--color-shadow)">
+    <div style="display:flex; gap:10px; padding: 6px 12px; border-radius: 20px; background: var(--color-background-glass); backdrop-filter: var(--backdrop-blur); border: 1px solid var(--color-border-primary); margin-bottom: 20px; align-items:center; z-index: 10; position: sticky; top: 0; box-shadow: 0 4px 12px var(--color-shadow); width: max-content; margin-left: auto; margin-right: auto;">
       <button class="btn-primary" style="padding: 2px 8px; font-size:12px; border-radius: 12px; width:auto; flex:none" onclick="zoomPreview(-0.1)">-</button>
       <span id="zoom-text" style="font-size:11px; font-weight:500; min-width: 40px; text-align:center">100%</span>
       <button class="btn-primary" style="padding: 2px 8px; font-size:12px; border-radius: 12px; width:auto; flex:none" onclick="zoomPreview(0.1)">+</button>
@@ -3946,8 +3947,6 @@ function applyZoom() {
   }
   
   const pane = p.parentElement;
-  const isMobile = window.innerWidth < 1024;
-  const paddingSide = isMobile ? 12 : 40;
   
   const scaledHeight = p.offsetHeight * currentZoom;
   // Apply visual height compression using negative margin on the scaled page 
@@ -3956,14 +3955,15 @@ function applyZoom() {
   pane.style.paddingBottom = '40px';
 
   const scaledWidth = p.offsetWidth * currentZoom;
-  const overflowWidth = scaledWidth - p.offsetWidth;
-  if (overflowWidth > 0) {
-    pane.style.paddingLeft = `${overflowWidth / 2 + paddingSide}px`;
-    pane.style.paddingRight = `${overflowWidth / 2 + paddingSide}px`;
-  } else {
-    pane.style.paddingLeft = `${paddingSide}px`;
-    pane.style.paddingRight = `${paddingSide}px`;
-  }
+  // Calculate horizontal margin footprint to center the scaled page 
+  // and prevent horizontal scrollbars on smaller viewports.
+  const marginSide = (scaledWidth - p.offsetWidth) / 2;
+  p.style.marginLeft = `${marginSide}px`;
+  p.style.marginRight = `${marginSide}px`;
+  
+  // Clear side paddings so margin footprint aligns perfectly in the middle
+  pane.style.paddingLeft = '0px';
+  pane.style.paddingRight = '0px';
 }
 
 function switchMobileView(view) {
