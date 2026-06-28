@@ -164,7 +164,7 @@ body {
   padding: 8px 12px;
   overflow-x: auto;
   white-space: nowrap;
-  -scrollbar-width: none;
+  scrollbar-width: none;
 }
 .tabs::-webkit-scrollbar {
   display: none;
@@ -371,6 +371,14 @@ body {
   flex-shrink: 0;
   position: relative;
   transition: all 0.3s ease;
+  will-change: transform;
+}
+
+#preview-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 /* Typography and Theme Presets */
@@ -1593,7 +1601,7 @@ body {
       <button class="btn-primary" style="padding: 2px 8px; font-size:12px; border-radius: 12px; width:auto; flex:none" onclick="zoomPreview(0.1)">+</button>
       <button class="btn-primary" style="padding: 2px 8px; font-size:11px; border-radius: 12px; width:auto; flex:none" onclick="resetZoom()">Fit</button>
     </div>
-    <div id="preview-wrapper" style="position: relative; display: flex; justify-content: center; width: 100%;">
+    <div id="preview-wrapper">
       <div class="preview-page" id="preview"></div>
     </div>
   </div>
@@ -1811,7 +1819,7 @@ function runAtsScan() {
   
   document.getElementById('ats-missing-count').textContent = missing.length;
   document.getElementById('ats-missing-tags').innerHTML = missing.map(w => `<span class="ats-tag missing">${esc(w)}</span>`).join('');
-}function render(){
+}function performRender(){
   readForm();
   const p = document.getElementById('preview');
   if (!p) return;
@@ -1822,9 +1830,9 @@ function runAtsScan() {
   p.style.lineHeight = data.settings.lineHeight;
   p.className = `preview-page theme-${data.settings.theme}`;
   
-  // Auto-save changes to current project
+  // Auto-save changes to current project (debounced)
   if (typeof saveActiveProject === 'function') {
-    saveActiveProject();
+    saveActiveProject(false);
   }
   
   const theme = data.settings.theme || 'classic';
@@ -1906,6 +1914,17 @@ function runAtsScan() {
   
   if (typeof runGrammarAudit === 'function') {
     runGrammarAudit();
+  }
+}
+
+let _renderTimer = null;
+function render(immediate = false) {
+  if (immediate) {
+    clearTimeout(_renderTimer);
+    performRender();
+  } else {
+    clearTimeout(_renderTimer);
+    _renderTimer = setTimeout(performRender, 50);
   }
 }
 
@@ -3257,16 +3276,37 @@ function initProjectManager() {
   
   buildProjectListUI();
   populateForm();
-  render();
+  render(true);
 }
 
-function saveActiveProject() {
+let _saveTimer = null;
+let _isSavePending = false;
+
+function performSaveActiveProject() {
   const activeProj = projects.find(p => p.id === activeProjectId);
   if (activeProj) {
     activeProj.data = JSON.parse(JSON.stringify(data));
     localStorage.setItem('resume_projects', JSON.stringify(projects));
   }
+  _isSavePending = false;
 }
+
+function saveActiveProject(immediate = false) {
+  if (immediate) {
+    clearTimeout(_saveTimer);
+    performSaveActiveProject();
+  } else {
+    _isSavePending = true;
+    clearTimeout(_saveTimer);
+    _saveTimer = setTimeout(performSaveActiveProject, 800);
+  }
+}
+
+window.addEventListener('beforeunload', () => {
+  if (_isSavePending) {
+    performSaveActiveProject();
+  }
+});
 
 function buildProjectListUI() {
   const container = document.getElementById('project-list');
@@ -3290,7 +3330,7 @@ function buildProjectListUI() {
 }
 
 function loadProject(id) {
-  saveActiveProject();
+  saveActiveProject(true);
   
   activeProjectId = id;
   localStorage.setItem('active_project_id', activeProjectId);
@@ -3300,10 +3340,11 @@ function loadProject(id) {
   
   buildProjectListUI();
   populateForm();
-  render();
+  render(true);
 }
 
 function createNewProject() {
+  saveActiveProject(true);
   const cleanData = {
     name: "New Resume",
     phone: "",
@@ -3347,6 +3388,7 @@ function createNewProject() {
 }
 
 function deleteProject(id) {
+  saveActiveProject(true);
   if (projects.length <= 1) {
     alert("You must keep at least one resume project.");
     return;
@@ -3369,11 +3411,12 @@ function deleteProject(id) {
     
     buildProjectListUI();
     populateForm();
-    render();
+    render(true);
   }
 }
 
 function renameProjectPrompt(id) {
+  saveActiveProject(true);
   const proj = projects.find(p => p.id === id);
   if (!proj) return;
   
@@ -3386,6 +3429,7 @@ function renameProjectPrompt(id) {
 }
 
 function duplicateProject(id) {
+  saveActiveProject(true);
   const proj = projects.find(p => p.id === id);
   if (!proj) return;
   
@@ -3444,7 +3488,7 @@ function exportJSON() {
   const activeProj = projects.find(p => p.id === activeProjectId);
   if (!activeProj) return;
   
-  saveActiveProject();
+  saveActiveProject(true);
   
   const blob = new Blob([JSON.stringify(activeProj, null, 2)], {type: 'application/json'});
   const url = URL.createObjectURL(blob);
@@ -3482,7 +3526,7 @@ function loadPreset(key) {
     
     buildProjectListUI();
     populateForm();
-    render();
+    render(true);
     switchTab('basics');
   }
 }
@@ -3929,7 +3973,7 @@ function zoomPreview(delta) {
 
 function resetZoom() {
   const p = document.getElementById('preview');
-  const pane = p ? p.parentElement : null;
+  const pane = document.querySelector('.preview-pane');
   if (p && pane) {
     const isMobile = window.innerWidth < 1024;
     const padding = isMobile ? 24 : 80;
@@ -4012,7 +4056,7 @@ function selectTemplate(themeName) {
   const activeCard = document.getElementById('tpl-card-' + themeName);
   if (activeCard) activeCard.classList.add('active');
   
-  render();
+  render(true);
 }
 
 function uploadPhoto(event) {
@@ -4022,8 +4066,8 @@ function uploadPhoto(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     data.photo = e.target.result;
-    saveActiveProject();
-    render();
+    saveActiveProject(true);
+    render(true);
     updatePhotoUI();
   };
   reader.readAsDataURL(file);
@@ -4033,8 +4077,8 @@ function removePhoto() {
   data.photo = null;
   const fileInput = document.getElementById('f-photo');
   if (fileInput) fileInput.value = '';
-  saveActiveProject();
-  render();
+  saveActiveProject(true);
+  render(true);
   updatePhotoUI();
 }
 
@@ -4049,26 +4093,35 @@ function updatePhotoUI() {
     btnRemove.style.display = 'inline-block';
     if (adjPanel) adjPanel.style.display = 'block';
     
-    thumb.innerHTML = `
-      <div style="
-        width: 100%; 
-        height: 100%; 
-        overflow: hidden; 
-        border-radius: ${data.photoBorder === 'square' ? '8px' : '50%'}; 
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <img src="${data.photo}" style="
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transform: scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%);
+    // Performance optimization: check if image already exists and matches source
+    const existingImg = thumb.querySelector('img');
+    if (existingImg && existingImg.getAttribute('src') === data.photo) {
+      existingImg.style.transform = `scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%)`;
+      if (existingImg.parentElement) {
+        existingImg.parentElement.style.borderRadius = data.photoBorder === 'square' ? '8px' : '50%';
+      }
+    } else {
+      thumb.innerHTML = `
+        <div style="
+          width: 100%; 
+          height: 100%; 
+          overflow: hidden; 
+          border-radius: ${data.photoBorder === 'square' ? '8px' : '50%'}; 
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         ">
-      </div>
-    `;
+          <img src="${data.photo}" style="
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(${(data.photoZoom || 100) / 100}) translate(${(data.photoX || 0)}%, ${(data.photoY || 0)}%);
+          ">
+        </div>
+      `;
+    }
     
     // Sync sliders
     const sZoom = document.getElementById('f-photo-zoom');
@@ -4497,7 +4550,12 @@ function autoResizeTextarea(el) {
 
 initProjectManager();
 resetZoom();
-window.addEventListener('resize', resetZoom);
+
+let _resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(resetZoom, 150);
+});
 </script>
 </body>
 </html>
